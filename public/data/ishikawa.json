@@ -1,0 +1,70 @@
+[
+  {
+    "key": "missed-deadline",
+    "data": { "name": "Missed Deadline", "level": 1 },
+    "children": [
+      {
+        "key": "method",
+        "data": { "name": "Method", "level": 2 },
+        "children": [
+          { "key": "method-1", "data": { "name": "Bereaucratic", "level": 3 }, "children": [] },
+          { "key": "method-2", "data": { "name": "Poor Prioritazation", "level": 3 }, "children": [] },
+          { "key": "method-3", "data": { "name": "Unforeseen variables", "level": 3 }, "children": [] },
+          { "key": "method-4", "data": { "name": "Lack of planning", "level": 3 }, "children": [] }
+        ]
+      },
+      {
+        "key": "measurement",
+        "data": { "name": "Measurement", "level": 2 },
+        "children": [
+          { "key": "measurement-1", "data": { "name": "Did not track progress", "level": 3 }, "children": [] },
+          { "key": "measurement-2", "data": { "name": "No Short term goals", "level": 3 }, "children": [] },
+          { "key": "measurement-3", "data": { "name": "Lack of accountability", "level": 3 }, "children": [] },
+          { "key": "measurement-4", "data": { "name": "No timesheet", "level": 3 }, "children": [] }
+        ]
+      },
+      {
+        "key": "environment",
+        "data": { "name": "Environment", "level": 2 },
+        "children": [
+          { "key": "environment-1", "data": { "name": "Fluroscent lights", "level": 3 }, "children": [] },
+          { "key": "environment-2", "data": { "name": "Small cubicle", "level": 3 }, "children": [] },
+          { "key": "environment-3", "data": { "name": "Office too cold", "level": 3 }, "children": [] },
+          { "key": "environment-4", "data": { "name": "Noisy coworkers", "level": 3 }, "children": [] }
+        ]
+      },
+      {
+        "key": "people",
+        "data": { "name": "People", "level": 2 },
+        "children": [
+          { "key": "people-1", "data": { "name": "Micro-managing boss", "level": 3 }, "children": [] },
+          { "key": "people-2", "data": { "name": "Abscent secretary", "level": 3 }, "children": [] },
+          { "key": "people-3", "data": { "name": "Sick children", "level": 3 }, "children": [] },
+          { "key": "people-4", "data": { "name": "Lack fo communication from client", "level": 3 }, "children": [] }
+        ]
+      },
+      {
+        "key": "machine",
+        "data": { "name": "Machine", "level": 2 },
+        "children": [
+          { "key": "machine-1", "data": { "name": "Coffee machine broken", "level": 3 }, "children": [] },
+          { "key": "machine-2", "data": { "name": "Car wouldn't start", "level": 3 }, "children": [] },
+          { "key": "machine-3", "data": { "name": "Poo internet connection", "level": 3 }, "children": [] },
+          { "key": "machine-4", "data": { "name": "Slow computer", "level": 3 }, "children": [] }
+        ]
+      },
+      {
+        "key": "materials",
+        "data": { "name": "Materials", "level": 2 },
+        "children": [
+          { "key": "materials-1", "data": { "name": "Unstable desk", "level": 3 }, "children": [] },
+          { "key": "materials-2", "data": { "name": "No printer paper", "level": 3 }, "children": [] },
+          { "key": "materials-3", "data": { "name": "Out of pens", "level": 3 }, "children": [] },
+          { "key": "materials-4", "data": { "name": "Squeaky desk chair", "level": 3 }, "children": [] }
+        ]
+      }
+    ]
+  }
+]
+
+
