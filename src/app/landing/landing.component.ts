@@ -6,11 +6,12 @@ import { TreeTableModule } from 'primeng/treetable';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { HttpClient } from '@angular/common/http';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, FormsModule, TreeTableModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, FormsModule, TreeTableModule, ButtonModule, InputTextModule, CheckboxModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css'
 })
@@ -18,8 +19,8 @@ export class LandingComponent implements OnInit {
   treeNodes: TreeNode[] = [];
 
   selectedNode: TreeNode | null = null;
-  selectedKeys: { [key: string]: boolean } = {};
   expandedKeys: { [key: string]: boolean } = {};
+  private selectedRefs: Set<TreeNode> = new Set<TreeNode>();
 
   constructor(private http: HttpClient) {}
 
@@ -70,13 +71,11 @@ export class LandingComponent implements OnInit {
   }
 
   deleteSelected(): void {
-    const keys = Object.keys(this.selectedKeys || {});
-    if (!keys.length) {
+    if (this.selectedRefs.size === 0) {
       return;
     }
-    const keySet = new Set<string>(keys);
-    this.removeNodesByKeys(this.treeNodes, keySet);
-    this.selectedKeys = {};
+    this.treeNodes = this.filterOutByRef(this.treeNodes);
+    this.selectedRefs.clear();
     this.expandedKeys = this.buildExpandedKeys(this.treeNodes);
     this.treeNodes = [...this.treeNodes];
   }
@@ -98,21 +97,8 @@ export class LandingComponent implements OnInit {
     return false;
   }
 
-  private removeNodesByKeys(nodes: TreeNode[], keysToDelete: Set<string>): void {
-    for (let i = nodes.length - 1; i >= 0; i--) {
-      const node = nodes[i];
-      if (node.key && keysToDelete.has(node.key)) {
-        nodes.splice(i, 1);
-        continue;
-      }
-      if (node.children && node.children.length) {
-        this.removeNodesByKeys(node.children, keysToDelete);
-      }
-    }
-  }
-
   hasAnySelection(): boolean {
-    return Object.keys(this.selectedKeys || {}).length > 0;
+    return Object.values(this.selectedKeys).some((v) => !!v);
   }
 
   private generateKey(): string {
@@ -149,6 +135,57 @@ export class LandingComponent implements OnInit {
       if (node.children && node.children.length) {
         this.expandAllNodes(node.children);
       }
+    }
+  }
+
+  private collectAllKeys(nodes: TreeNode[], acc: string[] = []): string[] {
+    for (const n of nodes) {
+      if (n.key) {
+        acc.push(n.key);
+      }
+      if (n.children && n.children.length) {
+        this.collectAllKeys(n.children, acc);
+      }
+    }
+    return acc;
+  }
+
+  private filterOutByKeys(nodes: TreeNode[], keysToDelete: Set<string>): TreeNode[] {
+    const result: TreeNode[] = [];
+    for (const node of nodes) {
+      if (node.key && keysToDelete.has(node.key)) {
+        continue;
+      }
+      const newChildren = node.children && node.children.length ? this.filterOutByKeys(node.children, keysToDelete) : [];
+      result.push({ ...node, children: newChildren });
+    }
+    return result;
+  }
+
+  private filterOutByRef(nodes: TreeNode[]): TreeNode[] {
+    const result: TreeNode[] = [];
+    for (const node of nodes) {
+      if (this.selectedRefs.has(node)) {
+        continue;
+      }
+      const newChildren = node.children && node.children.length ? this.filterOutByRef(node.children) : [];
+      result.push({ ...node, children: newChildren });
+    }
+    return result;
+  }
+
+  protected isSelected(node: TreeNode | null | undefined): boolean {
+    return !!(node && this.selectedRefs.has(node));
+  }
+
+  protected toggleSelected(node: TreeNode | null | undefined, checked: boolean): void {
+    if (!node) {
+      return;
+    }
+    if (checked) {
+      this.selectedRefs.add(node);
+    } else {
+      this.selectedRefs.delete(node);
     }
   }
 }

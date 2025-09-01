@@ -3,7 +3,7 @@
     <button pButton type="button" label="Delete Selected" icon="pi pi-trash" (click)="deleteSelected()" [disabled]="!hasAnySelection()"></button>
   </div>
 
-  <p-treeTable [value]="treeNodes" selectionMode="checkbox" [(selectionKeys)]="selectedKeys" dataKey="key" [expandedKeys]="expandedKeys">
+  <p-treeTable [value]="treeNodes" dataKey="key" [expandedKeys]="expandedKeys">
     <ng-template pTemplate="header">
       <tr>
         <th>Name</th>
@@ -16,7 +16,7 @@
         <td>
           <div class="name-cell" [style.padding-left.px]="(rowNode.level ?? 0) * 16">
             <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
-            <p-treeTableCheckbox [value]="rowNode"></p-treeTableCheckbox>
+            <p-checkbox [ngModel]="isSelected(rowNode.node)" (ngModelChange)="toggleSelected(rowNode.node, $event)" [binary]="true"></p-checkbox>
             <input pInputText type="text" [(ngModel)]="rowData.name" style="width: 100%" />
           </div>
         </td>
