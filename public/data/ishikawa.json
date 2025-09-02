@@ -40,7 +40,7 @@
           { "key": "people-1", "data": { "name": "Micro-managing boss", "level": 3 }, "children": [] },
           { "key": "people-2", "data": { "name": "Abscent secretary", "level": 3 }, "children": [] },
           { "key": "people-3", "data": { "name": "Sick children", "level": 3 }, "children": [] },
-          { "key": "people-4", "data": { "name": "Lack fo communication from client", "level": 3 }, "children": [] }
+          { "key": "people-4", "data": { "name": "Lack of communication from client", "level": 3 }, "children": [] }
         ]
       },
       {
@@ -49,7 +49,7 @@
         "children": [
           { "key": "machine-1", "data": { "name": "Coffee machine broken", "level": 3 }, "children": [] },
           { "key": "machine-2", "data": { "name": "Car wouldn't start", "level": 3 }, "children": [] },
-          { "key": "machine-3", "data": { "name": "Poo internet connection", "level": 3 }, "children": [] },
+          { "key": "machine-3", "data": { "name": "Poor internet connection", "level": 3 }, "children": [] },
           { "key": "machine-4", "data": { "name": "Slow computer", "level": 3 }, "children": [] }
         ]
       },

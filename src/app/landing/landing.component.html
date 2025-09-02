@@ -3,10 +3,11 @@
     <button pButton type="button" label="Delete Selected" icon="pi pi-trash" (click)="deleteSelected()" [disabled]="!hasAnySelection()"></button>
   </div>
 
-  <p-treeTable [value]="treeNodes" dataKey="key" [expandedKeys]="expandedKeys">
+  @if (isLoaded) {
+  <p-treeTable [value]="treeNodes" dataKey="key">
     <ng-template pTemplate="header">
       <tr>
-        <th>Name</th>
+        <th>Contributing Factors for Missed Deadline</th>
         <th style="width:12rem"></th>
       </tr>
     </ng-template>
@@ -26,6 +27,7 @@
       </tr>
     </ng-template>
   </p-treeTable>
+  }
 </div>
 
 

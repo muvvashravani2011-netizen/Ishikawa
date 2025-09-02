@@ -17,27 +17,28 @@ import { CheckboxModule } from 'primeng/checkbox';
 })
 export class LandingComponent implements OnInit {
   treeNodes: TreeNode[] = [];
+  isLoaded = false;
 
   selectedNode: TreeNode | null = null;
-  expandedKeys: { [key: string]: boolean } = {};
   private selectedRefs: Set<TreeNode> = new Set<TreeNode>();
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    // Load static asset only (no server, no local storage)
     this.http.get<TreeNode[]>(`/data/ishikawa.json`).subscribe({
       next: (nodes) => {
         this.treeNodes = this.ensureLevels(nodes);
         this.expandAllNodes(this.treeNodes);
-        //this.expandedKeys = this.buildExpandedKeys(this.treeNodes);
+        this.isLoaded = true;
       },
       error: () => {
-        // fallback to a default root if asset missing
+        // final fallback: single root
         this.treeNodes = [
           { key: this.generateKey(), data: { name: 'Missed Deadline', level: 1 }, children: [] }
         ];
         this.expandAllNodes(this.treeNodes);
-        this.expandedKeys = this.buildExpandedKeys(this.treeNodes);
+        this.isLoaded = true;
       }
     });
   }
@@ -63,9 +64,6 @@ export class LandingComponent implements OnInit {
 
     // ensure parent shows the newly added child
     (targetNode as any).expanded = true;
-    if (targetNode.key) {
-      this.expandedKeys[targetNode.key] = true;
-    }
     // trigger change detection by creating a new array reference at root
     this.treeNodes = [...this.treeNodes];
   }
@@ -74,9 +72,12 @@ export class LandingComponent implements OnInit {
     if (this.selectedRefs.size === 0) {
       return;
     }
-    this.treeNodes = this.filterOutByRef(this.treeNodes);
+    // Cascading delete: remove selected nodes AND their descendants
+    const pruned = this.filterOutByRef(this.treeNodes);
+    this.treeNodes = this.ensureLevels(pruned);
+    this.expandAllNodes(this.treeNodes);
     this.selectedRefs.clear();
-    this.expandedKeys = this.buildExpandedKeys(this.treeNodes);
+    // keep UI expanded via node.expanded flag; expandedKeys binding removed
     this.treeNodes = [...this.treeNodes];
   }
 
@@ -98,7 +99,7 @@ export class LandingComponent implements OnInit {
   }
 
   hasAnySelection(): boolean {
-    return Object.values(this.selectedKeys).some((v) => !!v);
+    return this.selectedRefs.size > 0;
   }
 
   private generateKey(): string {
@@ -113,22 +114,6 @@ export class LandingComponent implements OnInit {
     }));
   }
 
-  private buildExpandedKeys(nodes: TreeNode[]): { [key: string]: boolean } {
-    const expanded: { [key: string]: boolean } = {};
-    const walk = (arr: TreeNode[]) => {
-      for (const node of arr) {
-        if (node.key) {
-          expanded[node.key] = true;
-        }
-        if (node.children && node.children.length) {
-          walk(node.children);
-        }
-      }
-    };
-    walk(nodes);
-    return expanded;
-  }
-
   private expandAllNodes(nodes: TreeNode[]): void {
     for (const node of nodes) {
       (node as any).expanded = true;
@@ -138,29 +123,7 @@ export class LandingComponent implements OnInit {
     }
   }
 
-  private collectAllKeys(nodes: TreeNode[], acc: string[] = []): string[] {
-    for (const n of nodes) {
-      if (n.key) {
-        acc.push(n.key);
-      }
-      if (n.children && n.children.length) {
-        this.collectAllKeys(n.children, acc);
-      }
-    }
-    return acc;
-  }
-
-  private filterOutByKeys(nodes: TreeNode[], keysToDelete: Set<string>): TreeNode[] {
-    const result: TreeNode[] = [];
-    for (const node of nodes) {
-      if (node.key && keysToDelete.has(node.key)) {
-        continue;
-      }
-      const newChildren = node.children && node.children.length ? this.filterOutByKeys(node.children, keysToDelete) : [];
-      result.push({ ...node, children: newChildren });
-    }
-    return result;
-  }
+  // No persistence (asset-only mode)
 
   private filterOutByRef(nodes: TreeNode[]): TreeNode[] {
     const result: TreeNode[] = [];
@@ -174,6 +137,8 @@ export class LandingComponent implements OnInit {
     return result;
   }
 
+  // (non-cascading helper removed by request)
+
   protected isSelected(node: TreeNode | null | undefined): boolean {
     return !!(node && this.selectedRefs.has(node));
   }
@@ -184,10 +149,38 @@ export class LandingComponent implements OnInit {
     }
     if (checked) {
       this.selectedRefs.add(node);
+      // when a parent is checked, also check all descendants
+      if (node.children && node.children.length) {
+        this.selectDescendants(node.children);
+      }
     } else {
       this.selectedRefs.delete(node);
+      // when a parent is unchecked, also uncheck all descendants
+      if (node.children && node.children.length) {
+        this.deselectDescendants(node.children);
+      }
     }
   }
+
+  private deselectDescendants(children: TreeNode[]): void {
+    for (const child of children) {
+      this.selectedRefs.delete(child);
+      if (child.children && child.children.length) {
+        this.deselectDescendants(child.children);
+      }
+    }
+  }
+
+  private selectDescendants(children: TreeNode[]): void {
+    for (const child of children) {
+      this.selectedRefs.add(child);
+      if (child.children && child.children.length) {
+        this.selectDescendants(child.children);
+      }
+    }
+  }
+
+  // No local storage (asset-only mode)
 }
 
 
