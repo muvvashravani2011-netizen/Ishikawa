@@ -50,9 +50,6 @@ export class LandingComponent implements OnInit {
       return;
     }
     const currentLevel: number = targetNode.data?.level ?? 1;
-    if (currentLevel >= 4) {
-      return;
-    }
 
     if (!targetNode.children) {
       targetNode.children = [];
@@ -79,7 +76,6 @@ export class LandingComponent implements OnInit {
     const pruned = this.filterOutByRef(this.treeNodes);
     this.treeNodes = this.ensureLevels(pruned);
     this.sortTreeByName(this.treeNodes);
-    this.expandAllNodes(this.treeNodes);
     this.selectedRefs.clear();
     // keep UI expanded via node.expanded flag; expandedKeys binding removed
     this.treeNodes = [...this.treeNodes];

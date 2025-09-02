@@ -8,8 +8,8 @@ The Ishikawa (fishbone) method organizes causes across categories like Method, P
 
 ### Scope
 - Landing page with a PrimeNG TreeTable and a single column: “Contributing Factors for Missed Deadline”.
-- Inline editing at all levels (root to level 4).
-- Per-row Add Child action; max depth = 4.
+- Inline editing at all levels (unlimited depth).
+- Per-row Add Child action (no max depth restriction).
 - Checkbox selection for rows; Delete Selected removes selected nodes and their descendants.
 - All nodes are expanded by default; indentation increases by level.
 
