@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TreeNode } from 'primeng/api';
@@ -13,32 +13,34 @@ import { CheckboxModule } from 'primeng/checkbox';
   standalone: true,
   imports: [CommonModule, FormsModule, TreeTableModule, ButtonModule, InputTextModule, CheckboxModule],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.css'
+  styleUrl: './landing.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LandingComponent implements OnInit {
   treeNodes: TreeNode[] = [];
-  isLoaded = false;
 
   selectedNode: TreeNode | null = null;
   private selectedRefs: Set<TreeNode> = new Set<TreeNode>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    // Load static asset only (no server, no local storage)
+    // Load static asset (no server, no local storage)
     this.http.get<TreeNode[]>(`/data/ishikawa.json`).subscribe({
       next: (nodes) => {
         this.treeNodes = this.ensureLevels(nodes);
+        this.sortTreeByName(this.treeNodes);
         this.expandAllNodes(this.treeNodes);
-        this.isLoaded = true;
+        this.cdr.detectChanges();
       },
       error: () => {
         // final fallback: single root
         this.treeNodes = [
           { key: this.generateKey(), data: { name: 'Missed Deadline', level: 1 }, children: [] }
         ];
+        this.sortTreeByName(this.treeNodes);
         this.expandAllNodes(this.treeNodes);
-        this.isLoaded = true;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -65,6 +67,7 @@ export class LandingComponent implements OnInit {
     // ensure parent shows the newly added child
     (targetNode as any).expanded = true;
     // trigger change detection by creating a new array reference at root
+    this.sortTreeByName(this.treeNodes);
     this.treeNodes = [...this.treeNodes];
   }
 
@@ -75,6 +78,7 @@ export class LandingComponent implements OnInit {
     // Cascading delete: remove selected nodes AND their descendants
     const pruned = this.filterOutByRef(this.treeNodes);
     this.treeNodes = this.ensureLevels(pruned);
+    this.sortTreeByName(this.treeNodes);
     this.expandAllNodes(this.treeNodes);
     this.selectedRefs.clear();
     // keep UI expanded via node.expanded flag; expandedKeys binding removed
@@ -121,6 +125,32 @@ export class LandingComponent implements OnInit {
         this.expandAllNodes(node.children);
       }
     }
+  }
+
+  private sortTreeByName(nodes: TreeNode[]): void {
+    const normalize = (value: unknown): string => {
+      const s = (value ?? '').toString();
+      return s.toLowerCase();
+    };
+    const sortArray = (arr: TreeNode[]): void => {
+      arr.sort((a, b) => {
+        const an = normalize(a?.data?.name);
+        const bn = normalize(b?.data?.name);
+        if (!an && !bn) return 0;
+        if (!an) return 1;
+        if (!bn) return -1;
+        return an.localeCompare(bn);
+      });
+    };
+    const walk = (arr: TreeNode[]): void => {
+      sortArray(arr);
+      for (const n of arr) {
+        if (n.children && n.children.length) {
+          walk(n.children);
+        }
+      }
+    };
+    walk(nodes);
   }
 
   // No persistence (asset-only mode)
